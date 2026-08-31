@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar/navbar";
+import Footer from "@/components/footer";
 
-// Cara pemanggilan font yang lebih praktis
 const raleway = Raleway({
   subsets: ["latin"],
 });
@@ -23,6 +23,7 @@ export default function RootLayout({
       <body className={raleway.className}>
         <Navbar />
         <main className="bg-gray-50 min-h-screen">{children}</main>
+        <Footer />
       </body>
     </html>
   );
