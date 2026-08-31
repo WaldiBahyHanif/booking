@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import "./globals.css";
-
-// Mengimpor komponen Navbar yang baru kita buat
 import Navbar from "@/components/navbar/navbar";
 
+// Cara pemanggilan font yang lebih praktis
 const raleway = Raleway({
   subsets: ["latin"],
-  variable: "--font-raleway",
 });
 
 export const metadata: Metadata = {
@@ -22,11 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${raleway.variable} font-sans`}>
-        {/* Memanggil Navbar di sini */}
+      <body className={raleway.className}>
         <Navbar />
-
-        {/* Memberi warna dasar dan tinggi minimum pada halaman */}
         <main className="bg-gray-50 min-h-screen">{children}</main>
       </body>
     </html>
