@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={raleway.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={raleway.className} suppressHydrationWarning>
         <Navbar />
         <main className="bg-gray-50 min-h-screen">{children}</main>
         <Footer />

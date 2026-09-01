@@ -3,14 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { IoClose, IoMenu } from "react-icons/io5";
-import clsx from "clsx";
 
 export default function Navlink() {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      {/* Tombol Hamburger Menu untuk layar HP */}
+      {/* Tombol Hamburger Menu */}
       <button
         onClick={() => setOpen(!open)}
         className="inline-flex items-center justify-center p-2 text-sm text-gray-500 rounded-md md:hidden hover:bg-gray-100"
@@ -19,11 +18,7 @@ export default function Navlink() {
       </button>
 
       {/* Daftar Menu Navigasi */}
-      <div
-        className={clsx("w-full md:block md:w-auto", {
-          hidden: !open,
-        })}
-      >
+      <div className={`w-full md:block md:w-auto ${open ? "block" : "hidden"}`}>
         <ul className="flex flex-col font-semibold text-sm uppercase p-4 mt-4 rounded-sm bg-gray-50 md:flex-row md:items-center md:space-x-10 md:p-0 md:mt-0 md:border-0 md:bg-white">
           <li>
             <Link
