@@ -1,3 +1,4 @@
+import { signIn } from "@/auth";
 import { FaGoogle } from "react-icons/fa6";
 
 interface LoginButtonProps {
@@ -9,7 +10,7 @@ export function LoginGoogleButton({ redirectUrl }: LoginButtonProps) {
     <form
       action={async () => {
         "use server";
-        // Logika login Auth.js akan dipasang di langkah selanjutnya
+        await signIn("google", { redirectTo: redirectUrl || "/" });
       }}
     >
       <button
