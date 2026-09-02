@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getRooms } from "@/lib/data";
+import DeleteRoomButton from "@/components/admin/delete-room-button";
 
 export default async function RoomTable() {
   const rooms = await getRooms();
@@ -66,9 +67,7 @@ export default async function RoomTable() {
                   >
                     Edit
                   </Link>
-                  <button className="text-red-600 hover:underline font-medium cursor-pointer">
-                    Delete
-                  </button>
+                  <DeleteRoomButton id={room.id} />
                 </div>
               </td>
             </tr>
