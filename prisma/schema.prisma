@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?       @map("email_verified")
+  image         String?
+  role          String          @default("user")
+  phone         String?
+  accounts      Account[]
+  reservations  Reservation[]
+
+  @@map("users")
+}
+
+model Room {
+  id             String          @id @default(cuid())
+  name           String
+  description    String          @db.Text
+  image          String
+  price          Int
+  capacity       Int             @default(1)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  roomAmenities  RoomAmenities[]
+  reservations   Reservation[]
+
+  @@map("rooms")
+}
+
+model Amenities {
+  id            String          @id @default(cuid())
+  name          String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  roomAmenities RoomAmenities[]
+
+  @@map("amenities")
+}
+
+model RoomAmenities {
+  id          String    @id @default(cuid())
+  roomId      String    @map("room_id")
+  amenitiesId String    @map("amenities_id")
+  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  amenities   Amenities @relation(fields: [amenitiesId], references: [id], onDelete: Cascade)
+
+  @@map("room_amenities")
+}
+
+model Reservation {
+  id        String   @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+  price     Int
+  userId    String   @map("user_id")
+  roomId    String   @map("room_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room    Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  payment Payment?
+
+  @@map("reservations")
+}
+
+model Payment {
+  id            String      @id @default(cuid())
+  method        String?
+  amount        Int
+  status        String      @default("unpaid")
+  reservationId String      @unique @map("reservation_id")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contacts")
+}
