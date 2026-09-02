@@ -1,6 +1,9 @@
 "use server";
 
 import { signIn, signOut } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function loginWithGoogle(redirectUrl?: string) {
   await signIn("google", { redirectTo: redirectUrl || "/" });
@@ -8,4 +11,42 @@ export async function loginWithGoogle(redirectUrl?: string) {
 
 export async function logoutUser() {
   await signOut({ redirectTo: "/" });
+}
+
+export async function saveRoom(formData: FormData) {
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const price = Number(formData.get("price"));
+  const capacity = Number(formData.get("capacity"));
+  const image = (formData.get("image") as string) || "/hero.jpg";
+  const amenities = formData.getAll("amenities") as string[];
+
+  if (!name || !description || !price || !capacity) {
+    return { error: "Semua kolom wajib diisi." };
+  }
+
+  try {
+    await prisma.room.create({
+      data: {
+        name,
+        description,
+        price,
+        capacity,
+        image,
+        roomAmenities: {
+          create: amenities.map((amenityId) => ({
+            amenitiesId: amenityId,
+          })),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Gagal membuat kamar:", error);
+    return { error: "Gagal menyimpan data kamar ke database." };
+  }
+
+  revalidatePath("/admin/room");
+  revalidatePath("/room");
+  revalidatePath("/");
+  redirect("/admin/room");
 }

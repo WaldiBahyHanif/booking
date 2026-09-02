@@ -8,9 +8,16 @@ export default async function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <Link href="/" className="flex items-center space-x-3">
-          <Image src="/logo.png" width={128} height={49} alt="logo" priority />
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto py-2.5 px-4">
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo.png"
+            width={120}
+            height={45}
+            alt="logo"
+            priority
+            className="w-auto h-11 object-contain"
+          />
         </Link>
         <Navlink session={session} />
       </div>

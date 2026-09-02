@@ -6,13 +6,12 @@ import { redirect } from "next/navigation";
 export default async function AdminRoomPage() {
   const session = await auth();
 
-  // Proteksi halaman: hanya admin yang bisa membuka
   if (!session || session.user?.role !== "admin") {
     redirect("/");
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto py-12 px-4 mt-16">
+    <div className="max-w-screen-xl mx-auto py-10 px-4 pt-28">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Manage Rooms</h1>
