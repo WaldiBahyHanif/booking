@@ -34,3 +34,17 @@ export async function getAmenities() {
     return [];
   }
 }
+export async function getRoomById(id: string) {
+  try {
+    const room = await prisma.room.findUnique({
+      where: { id },
+      include: {
+        roomAmenities: true,
+      },
+    });
+    return room;
+  } catch (error) {
+    console.error("Failed to fetch room by id:", error);
+    return null;
+  }
+}

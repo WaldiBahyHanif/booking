@@ -68,3 +68,49 @@ export async function deleteRoom(id: string) {
   revalidatePath("/room");
   revalidatePath("/");
 }
+
+// Update Kamar
+export async function updateRoom(id: string, formData: FormData) {
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const price = Number(formData.get("price"));
+  const capacity = Number(formData.get("capacity"));
+  const image = (formData.get("image") as string) || "/hero.jpg";
+  const amenities = formData.getAll("amenities") as string[];
+
+  if (!name || !description || !price || !capacity) {
+    return { error: "Semua kolom wajib diisi." };
+  }
+
+  try {
+    // 1. Hapus relasi amenities lama kamar ini
+    await prisma.roomAmenities.deleteMany({
+      where: { roomId: id },
+    });
+
+    // 2. Perbarui data kamar sekaligus masukkan amenities baru
+    await prisma.room.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        price,
+        capacity,
+        image,
+        roomAmenities: {
+          create: amenities.map((amenityId) => ({
+            amenitiesId: amenityId,
+          })),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Gagal mengupdate kamar:", error);
+    return { error: "Gagal memperbarui kamar." };
+  }
+
+  revalidatePath("/admin/room");
+  revalidatePath("/room");
+  revalidatePath("/");
+  redirect("/admin/room");
+}
