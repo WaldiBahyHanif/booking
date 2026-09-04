@@ -39,7 +39,11 @@ export async function getRoomById(id: string) {
     const room = await prisma.room.findUnique({
       where: { id },
       include: {
-        roomAmenities: true,
+        roomAmenities: {
+          include: {
+            amenities: true,
+          },
+        },
       },
     });
     return room;
