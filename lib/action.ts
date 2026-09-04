@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
+import { signIn, signOut, auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -113,4 +113,58 @@ export async function updateRoom(id: string, formData: FormData) {
   revalidatePath("/room");
   revalidatePath("/");
   redirect("/admin/room");
+}
+
+// Reservasi Kamar
+export async function createReservation(roomId: string, formData: FormData) {
+  const session = await auth();
+
+  if (!session || !session.user?.id) {
+    return { error: "Anda harus login terlebih dahulu." };
+  }
+
+  const startDateStr = formData.get("startDate") as string;
+  const endDateStr = formData.get("endDate") as string;
+
+  if (!startDateStr || !endDateStr) {
+    return { error: "Tanggal check-in dan check-out wajib diisi." };
+  }
+
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+
+  const diffTime = endDate.getTime() - startDate.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) {
+    return { error: "Tanggal check-out harus lebih besar dari check-in." };
+  }
+
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+  });
+
+  if (!room) {
+    return { error: "Kamar tidak ditemukan." };
+  }
+
+  const price = diffDays * room.price;
+
+  try {
+    await prisma.reservation.create({
+      data: {
+        userId: session.user.id,
+        roomId: room.id,
+        startDate,
+        endDate,
+        price,
+      },
+    });
+  } catch (error) {
+    console.error("Gagal menyimpan reservasi:", error);
+    return { error: "Terjadi kesalahan saat memproses reservasi." };
+  }
+
+  revalidatePath("/my-reservation");
+  redirect("/my-reservation");
 }

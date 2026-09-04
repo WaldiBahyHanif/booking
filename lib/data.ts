@@ -52,3 +52,21 @@ export async function getRoomById(id: string) {
     return null;
   }
 }
+
+export async function getUserReservations(userId: string) {
+  try {
+    const reservations = await prisma.reservation.findMany({
+      where: { userId },
+      include: {
+        room: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return reservations;
+  } catch (error) {
+    console.error("Gagal mengambil data reservasi:", error);
+    return [];
+  }
+}

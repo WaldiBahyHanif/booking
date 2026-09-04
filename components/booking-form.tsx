@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createReservation } from "@/lib/action";
 
 interface BookingFormProps {
   room: {
@@ -12,6 +13,8 @@ interface BookingFormProps {
 export default function BookingForm({ room }: BookingFormProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const calculateTotalPrice = () => {
     if (!startDate || !endDate) return 0;
@@ -31,23 +34,39 @@ export default function BookingForm({ room }: BookingFormProps) {
     return diffDays > 0 ? diffDays : 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (formData: FormData) => {
     if (totalNights() <= 0) {
-      alert("Tanggal check-out harus lebih besar dari tanggal check-in.");
+      setErrorMessage(
+        "Tanggal check-out harus lebih besar dari tanggal check-in.",
+      );
       return;
     }
-    alert(`Pemesanan untuk ${totalNights()} malam berhasil disiapkan!`);
+
+    setLoading(true);
+    setErrorMessage("");
+
+    const result = await createReservation(room.id, formData);
+    if (result?.error) {
+      setErrorMessage(result.error);
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form action={handleSubmit} className="space-y-4">
+      {errorMessage && (
+        <div className="bg-red-50 text-red-600 text-xs p-3 rounded border border-red-200">
+          {errorMessage}
+        </div>
+      )}
+
       <div>
         <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">
           Tanggal Check-in
         </label>
         <input
           type="date"
+          name="startDate"
           required
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
@@ -61,6 +80,7 @@ export default function BookingForm({ room }: BookingFormProps) {
         </label>
         <input
           type="date"
+          name="endDate"
           required
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
@@ -87,9 +107,10 @@ export default function BookingForm({ room }: BookingFormProps) {
 
       <button
         type="submit"
-        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-sm transition text-sm shadow cursor-pointer mt-2"
+        disabled={loading}
+        className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-medium py-3 rounded-sm transition text-sm shadow cursor-pointer mt-2"
       >
-        Pesan Sekarang
+        {loading ? "Memproses..." : "Pesan Sekarang"}
       </button>
     </form>
   );

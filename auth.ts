@@ -13,17 +13,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/sign-in",
   },
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.id = user.id;
       }
-      // Ambil role terbaru dari database jika token sudah ada
       if (token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },
         });
         if (dbUser) {
           token.role = dbUser.role;
+          token.id = dbUser.id;
         }
       }
       return token;
@@ -31,6 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.role = token.role as string;
+        session.user.id = token.id as string; // <-- Memastikan ID user selalu ada
       }
       return session;
     },
