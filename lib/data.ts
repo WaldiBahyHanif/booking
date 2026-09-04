@@ -70,3 +70,53 @@ export async function getUserReservations(userId: string) {
     return [];
   }
 }
+
+// Mengambil seluruh data reservasi untuk sisi admin
+export async function getAllReservations() {
+  try {
+    const reservations = await prisma.reservation.findMany({
+      include: {
+        room: true,
+        user: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return reservations;
+  } catch (error) {
+    console.error("Gagal mengambil seluruh reservasi:", error);
+    return [];
+  }
+}
+
+// Menghitung metrik ringkasan dashboard
+export async function getDashboardStats() {
+  try {
+    const [totalRooms, totalReservations, reservations] = await Promise.all([
+      prisma.room.count(),
+      prisma.reservation.count(),
+      prisma.reservation.findMany({
+        select: { price: true },
+      }),
+    ]);
+
+    const totalRevenue = reservations.reduce(
+      (acc, curr) => acc + curr.price,
+      0,
+    );
+
+    return {
+      totalRooms,
+      totalReservations,
+      totalRevenue,
+    };
+  } catch (error) {
+    console.error("Gagal mengambil ringkasan dashboard:", error);
+    return {
+      totalRooms: 0,
+      totalReservations: 0,
+      totalRevenue: 0,
+    };
+  }
+}
