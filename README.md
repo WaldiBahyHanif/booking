@@ -7,73 +7,91 @@ Aplikasi web untuk reservasi kamar hotel yang dibangun menggunakan Next.js (App 
 ## Ringkasan Fitur & Alur Kerja
 
 ### Sisi Pengunjung (Guest & User)
-- Autentikasi Cepat: Masuk menggunakan akun Google tanpa perlu mendaftar manual.
-- Katalog Kamar: Melihat daftar kamar lengkap beserta foto, kapasitas tamu, fasilitas (amenities), dan harga per malam.
-- Kalkulasi Biaya Otomatis: Form pemesanan interaktif yang langsung menghitung durasi malam dan total biaya saat tanggal check-in dan check-out dipilih.
-- Riwayat Reservasi: Halaman /my-reservation untuk melihat status pesanan aktif maupun riwayat pemesanan kamar yang pernah dibuat.
+
+- **Autentikasi Cepat**: Masuk menggunakan akun Google tanpa perlu mendaftar manual.
+- **Katalog Kamar**: Melihat daftar kamar lengkap beserta foto, kapasitas tamu, fasilitas (_amenities_), dan harga per malam.
+- **Kalkulasi Biaya Otomatis**: Form pemesanan interaktif yang langsung menghitung durasi malam dan total biaya saat tanggal check-in dan check-out dipilih.
+- **Riwayat Reservasi**: Halaman `/my-reservation` untuk melihat status pesanan aktif maupun riwayat pemesanan kamar yang pernah dibuat.
 
 ### Sisi Pengelola (Admin)
-- Dashboard Analitik (/admin/dashboard): Menampilkan statistik ringkas berupa total kamar terdaftar, total transaksi reservasi, dan akumulasi pendapatan kotor secara real-time, lengkap dengan tabel seluruh transaksi tamu.
-- Manajemen Kamar (/admin/room):
-  - Menambah tipe kamar baru (+ Add New Room) lengkap dengan pemilihan fasilitas.
-  - Mengubah data kamar, tarif, maupun fasilitas (Edit Room).
-  - Menghapus kamar yang sudah tidak tersedia (Delete Room).
-- Proteksi Rute: Membatasi akses folder /admin/* dan /my-reservation di tingkat edge menggunakan Next.js Middleware.
+
+- **Dashboard Analitik (`/admin/dashboard`)**: Menampilkan statistik ringkas berupa total kamar terdaftar, total transaksi reservasi, dan akumulasi pendapatan kotor secara _real-time_, lengkap dengan tabel seluruh transaksi tamu.
+- **Manajemen Kamar (`/admin/room`)**:
+  - Menambah tipe kamar baru (`+ Add New Room`) lengkap dengan pemilihan fasilitas.
+  - Mengubah data kamar, tarif, maupun fasilitas (`Edit Room`).
+  - Menghapus kamar yang sudah tidak tersedia (`Delete Room`).
+- **Proteksi Rute**: Membatasi akses folder `/admin/*` dan `/my-reservation` di tingkat edge menggunakan Next.js Middleware.
 
 ---
 
 ## Teknologi yang Digunakan
 
-- Framework: Next.js (TypeScript) - App Router, Server Components, Server Actions
-- Tampilan: Tailwind CSS & React Icons
-- Basis Data: Neon PostgreSQL (Serverless Cloud Database)
-- ORM: Prisma ORM
-- Autentikasi: Auth.js / NextAuth v5 (Google OAuth Provider dengan @auth/prisma-adapter)
+- **Framework**: Next.js (TypeScript) — App Router, Server Components, Server Actions
+- **Tampilan**: Tailwind CSS & React Icons
+- **Basis Data**: Neon PostgreSQL (Serverless Cloud Database)
+- **ORM**: Prisma ORM
+- **Autentikasi**: Auth.js / NextAuth v5 (Google OAuth Provider dengan @auth/prisma-adapter)
 
 ---
 
 ## Panduan Menjalankan Proyek di Komputer Lokal
 
-1. Kloning Repositori & Pasang Dependensi
-git clone https://github.com/<username>/<nama-repo>.git
-cd <nama-repo>
+### 1. Kloning Repositori & Pasang Dependensi
+
+```bash
+git clone [https://github.com/WaldiBahyHanif/booking.git](https://github.com/WaldiBahyHanif/booking.git)
+cd booking
 npm install
+```
 
-2. Buat File Konfigurasi .env
-Buat file bernama .env di folder utama proyek, lalu isi dengan variabel berikut:
+### 2. Buat File Konfigurasi .env
 
+Buat file bernama `.env` di folder utama proyek, lalu isi dengan variabel berikut:
+
+```env
 DATABASE_URL="postgresql://<user>:<password>@<neon-host>/<dbname>?sslmode=require"
 AUTH_SECRET="buat_secret_dengan_menjalankan_npx_auth_secret"
 AUTH_URL="http://localhost:3000"
 AUTH_GOOGLE_ID="isi_dengan_client_id_google_anda"
 AUTH_GOOGLE_SECRET="isi_dengan_client_secret_google_anda"
+```
 
-3. Sinkronkan Skema Database
+### 3. Sinkronkan Skema Database
+
+```bash
 npx prisma db push
+```
 
-4. Jalankan Server Lokal
+### 4. Jalankan Server Lokal
+
+```bash
 npm run dev
+```
 
-Buka browser dan akses alamat http://localhost:3000.
+Buka browser dan akses alamat [http://localhost:3000](http://localhost:3000).
 
 ---
 
 ## Cara Mengaktifkan Hak Akses Admin
 
-Setiap akun yang baru pertama kali login dengan Google akan otomatis mendapatkan peran user. Untuk mengubah akun menjadi admin:
+Setiap akun yang baru pertama kali login dengan Google akan otomatis mendapatkan peran `user`. Untuk mengubah akun menjadi `admin`:
 
 1. Buka antarmuka database lewat terminal:
-npx prisma studio
 
-2. Klik tabel User, cari akun yang ingin dijadikan admin.
-3. Ubah nilai kolom role dari user menjadi admin.
-4. Klik tombol Save 1 change.
-5. Di website, lakukan Sign Out lalu Sign In kembali agar sesi login diperbarui.
+```bash
+npx prisma studio
+```
+
+2. Klik tabel **User**, cari akun yang ingin dijadikan admin.
+3. Ubah nilai kolom `role` dari `user` menjadi `admin`.
+4. Klik tombol **Save 1 change**.
+5. Di website, lakukan **Sign Out** lalu **Sign In** kembali agar sesi login diperbarui.
 
 ---
 
 ## Struktur Folder Proyek
 
+```text
 booking/
 ├── app/
 │   ├── admin/
@@ -97,4 +115,5 @@ booking/
 ├── prisma/
 │   └── schema.prisma               (Skema tabel database)
 ├── auth.ts                         (Konfigurasi NextAuth v5)
-└── middleware.ts                   (Proteksi rute)
+└── middleware.ts                   (Proteksi rute edge)
+```
