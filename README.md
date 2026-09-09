@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StayEase - Hotel Room Reservation System
 
-## Getting Started
+Aplikasi web untuk reservasi kamar hotel yang dibangun menggunakan Next.js (App Router), Prisma ORM, Neon PostgreSQL, dan Auth.js (Google OAuth). Sistem ini mencakup alur lengkap dari sisi pengunjung (katalog, kalkulasi sewa otomatis, pemesanan) hingga sisi pengelola hotel (dashboard ringkasan metrik dan manajemen kamar).
 
-First, run the development server:
+---
 
-```bash
+## Ringkasan Fitur & Alur Kerja
+
+### Sisi Pengunjung (Guest & User)
+- Autentikasi Cepat: Masuk menggunakan akun Google tanpa perlu mendaftar manual.
+- Katalog Kamar: Melihat daftar kamar lengkap beserta foto, kapasitas tamu, fasilitas (amenities), dan harga per malam.
+- Kalkulasi Biaya Otomatis: Form pemesanan interaktif yang langsung menghitung durasi malam dan total biaya saat tanggal check-in dan check-out dipilih.
+- Riwayat Reservasi: Halaman /my-reservation untuk melihat status pesanan aktif maupun riwayat pemesanan kamar yang pernah dibuat.
+
+### Sisi Pengelola (Admin)
+- Dashboard Analitik (/admin/dashboard): Menampilkan statistik ringkas berupa total kamar terdaftar, total transaksi reservasi, dan akumulasi pendapatan kotor secara real-time, lengkap dengan tabel seluruh transaksi tamu.
+- Manajemen Kamar (/admin/room):
+  - Menambah tipe kamar baru (+ Add New Room) lengkap dengan pemilihan fasilitas.
+  - Mengubah data kamar, tarif, maupun fasilitas (Edit Room).
+  - Menghapus kamar yang sudah tidak tersedia (Delete Room).
+- Proteksi Rute: Membatasi akses folder /admin/* dan /my-reservation di tingkat edge menggunakan Next.js Middleware.
+
+---
+
+## Teknologi yang Digunakan
+
+- Framework: Next.js (TypeScript) - App Router, Server Components, Server Actions
+- Tampilan: Tailwind CSS & React Icons
+- Basis Data: Neon PostgreSQL (Serverless Cloud Database)
+- ORM: Prisma ORM
+- Autentikasi: Auth.js / NextAuth v5 (Google OAuth Provider dengan @auth/prisma-adapter)
+
+---
+
+## Panduan Menjalankan Proyek di Komputer Lokal
+
+1. Kloning Repositori & Pasang Dependensi
+git clone https://github.com/<username>/<nama-repo>.git
+cd <nama-repo>
+npm install
+
+2. Buat File Konfigurasi .env
+Buat file bernama .env di folder utama proyek, lalu isi dengan variabel berikut:
+
+DATABASE_URL="postgresql://<user>:<password>@<neon-host>/<dbname>?sslmode=require"
+AUTH_SECRET="buat_secret_dengan_menjalankan_npx_auth_secret"
+AUTH_URL="http://localhost:3000"
+AUTH_GOOGLE_ID="isi_dengan_client_id_google_anda"
+AUTH_GOOGLE_SECRET="isi_dengan_client_secret_google_anda"
+
+3. Sinkronkan Skema Database
+npx prisma db push
+
+4. Jalankan Server Lokal
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka browser dan akses alamat http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cara Mengaktifkan Hak Akses Admin
 
-## Learn More
+Setiap akun yang baru pertama kali login dengan Google akan otomatis mendapatkan peran user. Untuk mengubah akun menjadi admin:
 
-To learn more about Next.js, take a look at the following resources:
+1. Buka antarmuka database lewat terminal:
+npx prisma studio
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Klik tabel User, cari akun yang ingin dijadikan admin.
+3. Ubah nilai kolom role dari user menjadi admin.
+4. Klik tombol Save 1 change.
+5. Di website, lakukan Sign Out lalu Sign In kembali agar sesi login diperbarui.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Struktur Folder Proyek
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+booking/
+├── app/
+│   ├── admin/
+│   │   ├── dashboard/page.tsx      (Halaman statistik & transaksi admin)
+│   │   └── room/                   (Halaman daftar, tambah, dan edit kamar)
+│   ├── my-reservation/page.tsx     (Riwayat pesanan kamar milik user)
+│   ├── room/
+│   │   ├── page.tsx                (Halaman katalog seluruh kamar)
+│   │   └── [id]/page.tsx           (Halaman detail & form booking kamar)
+│   ├── layout.tsx                  (Root layout & navbar)
+│   └── page.tsx                    (Halaman utama / beranda)
+├── components/
+│   ├── admin/                      (Komponen form & tabel admin)
+│   ├── navbar/                     (Navigasi & tombol autentikasi)
+│   ├── booking-form.tsx            (Form tanggal & kalkulasi tarif)
+│   └── room-card.tsx               (Kartu display info kamar)
+├── lib/
+│   ├── action.ts                   (Server actions mutasi data & booking)
+│   ├── data.ts                     (Fungsi query data Prisma)
+│   └── prisma.ts                   (Instansiasi client Prisma)
+├── prisma/
+│   └── schema.prisma               (Skema tabel database)
+├── auth.ts                         (Konfigurasi NextAuth v5)
+└── middleware.ts                   (Proteksi rute)
